@@ -22,8 +22,6 @@ type User struct {
 	MusclePercentage float64
 }
 
-var users []User
-
 func (u *User) Save() error {
 	dbURL, _ := utils.CheckDbConnection()
 
@@ -94,7 +92,7 @@ func GetUsers() ([]User, error) {
 	}
 	defer conn.Close(context.Background())
 
-	SQLquery := "SELECT * FROM users"
+	SQLquery := "SELECT id, username, password FROM users"
 
 	rows, err := conn.Query(context.Background(), SQLquery)
 	if err != nil {

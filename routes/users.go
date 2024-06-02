@@ -70,7 +70,7 @@ func Login(context *gin.Context) {
 func ShowUsers(context *gin.Context) {
 	users, err := models.GetUsers()
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"Response": "WRONG URL"})
+		context.JSON(http.StatusBadRequest, gin.H{"Response": err})
 		return
 	}
 	context.JSON(http.StatusOK, gin.H{"Response": users})
