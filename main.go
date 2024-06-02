@@ -1,13 +1,23 @@
 package main
 
 import (
+	// "gymBackend/models"
 	"gymBackend/routes"
+	"gymBackend/utils"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/withmandala/go-log"
 )
 
 func main() {
-	// db.InitDB()
+	logger := log.New(os.Stderr)
+	connection := utils.CheckConnection()
+	if !connection {
+		return
+	}
+	logger.Info("Connected to DB")
+
 	server := gin.Default()
 
 	routes.RegisterRoutes(server) // Setted up server routes
