@@ -67,6 +67,15 @@ func Login(context *gin.Context) {
 	logger.Infof("User {%s} logged in", user.Username)
 }
 
+func ShowUsers(context *gin.Context) {
+	users, err := models.GetUsers()
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"Response": "WRONG URL"})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"Response": users})
+}
+
 // func AddData(){
 // 	logger := log.New(os.Stderr)
 // 	logger.Infof("User saved\nFirst name: %s\nLast name: %s\nWeight: %.2f\nHeight: %.2f\nFat %%: %.2f\nMuscle %%, %.2f", user.FirstName, user.LastName, user.Weight, user.Height, user.FatPercentage, user.MusclePercentage)

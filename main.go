@@ -14,6 +14,7 @@ func main() {
 	logger := log.New(os.Stderr)
 	connection := utils.CheckConnection()
 	if !connection {
+		logger.Fatal("CAN'T CONNECT TO DB")
 		return
 	}
 	logger.Info("Connected to DB")
