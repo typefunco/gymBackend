@@ -27,3 +27,14 @@ func CheckConnection() bool {
 
 	return true
 }
+
+func CheckDbConnection() (string, error) {
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Error loading .env file")
+	}
+
+	dbURL := os.Getenv("DATABASE_URL")
+
+	return dbURL, err
+}

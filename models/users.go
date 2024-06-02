@@ -5,10 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"gymBackend/utils"
-	"os"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/joho/godotenv"
 )
 
 type User struct {
@@ -24,12 +22,7 @@ type User struct {
 }
 
 func (u *User) Save() error {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Error loading .env file")
-	}
-
-	dbURL := os.Getenv("DATABASE_URL")
+	dbURL, _ := utils.CheckDbConnection()
 
 	conn, err := pgx.Connect(context.Background(), dbURL)
 	if err != nil {
@@ -56,12 +49,7 @@ func (u *User) Save() error {
 }
 
 func (u *User) ValidateCredentials() error {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Error loading .env file")
-	}
-
-	dbURL := os.Getenv("DATABASE_URL")
+	dbURL, _ := utils.CheckDbConnection()
 
 	conn, err := pgx.Connect(context.Background(), dbURL)
 
@@ -73,10 +61,8 @@ func (u *User) ValidateCredentials() error {
 	SQLquery := "SELECT id, password_hash FROM users WHERE username = $1"
 	row := conn.QueryRow(context.Background(), SQLquery, u.Username)
 
-	// Declare variables to store retrieved data
 	var retrievePassword string
 
-	// Scan the retrieved data into variables
 	err = row.Scan(&u.Id, &retrievePassword)
 	if err != nil {
 		if err == pgx.ErrNoRows {
@@ -94,12 +80,7 @@ func (u *User) ValidateCredentials() error {
 }
 
 func (u *User) SaveExtra() error {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Error loading .env file")
-	}
-
-	dbURL := os.Getenv("DATABASE_URL")
+	dbURL, _ := utils.CheckDbConnection()
 
 	conn, err := pgx.Connect(context.Background(), dbURL)
 	if err != nil {

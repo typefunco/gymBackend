@@ -2,6 +2,6 @@ POST http://localhost:8080/createuser
 Content-Type: application/json
 
 {
-  "Username": "m0gra",
-  "Password": "12345678"
+  "Username": "xa1zer1",
+  "Password": "xa1zert0p"
 }
