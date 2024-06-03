@@ -5,6 +5,7 @@ import (
 	"gymBackend/utils"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/withmandala/go-log"
 
@@ -56,7 +57,7 @@ func Login(context *gin.Context) {
 		return
 	}
 
-	token, err := utils.GenerateToken(user.Username, user.Id)
+	token, err := utils.GenerateToken(user.Id, user.Username)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not authenticate user."})
@@ -76,7 +77,33 @@ func ShowUsers(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"Response": users})
 }
 
-// func AddData(){
-// 	logger := log.New(os.Stderr)
-// 	logger.Infof("User saved\nFirst name: %s\nLast name: %s\nWeight: %.2f\nHeight: %.2f\nFat %%: %.2f\nMuscle %%, %.2f", user.FirstName, user.LastName, user.Weight, user.Height, user.FatPercentage, user.MusclePercentage)
-// }
+func UpdateUserProfile(context *gin.Context) {
+	token := context.GetHeader("Authorization")
+	if token == "" {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token required"})
+		return
+	}
+
+	// Extract token from "Bearer " prefix
+	token = strings.TrimPrefix(token, "Bearer ")
+
+	userId, err := utils.VerifyToken(token)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		return
+	}
+
+	var updates map[string]interface{}
+	if err := context.BindJSON(&updates); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	user := &models.User{}
+	if err := user.UpdateProfile(userId, updates); err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "Profile updated successfully"})
+}

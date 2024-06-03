@@ -118,24 +118,32 @@ func GetUsers() ([]User, error) {
 
 }
 
-// func (u *User) SaveExtra() error {
-// 	dbURL, _ := utils.CheckDbConnection()
+func (u *User) UpdateProfile(userId int, updates map[string]interface{}) error {
+	dbURL, _ := utils.CheckDbConnection()
 
-// 	conn, err := pgx.Connect(context.Background(), dbURL)
-// 	if err != nil {
-// 		return fmt.Errorf("unable to connect to database: %v", err)
-// 	}
-// 	defer conn.Close(context.Background())
+	conn, err := pgx.Connect(context.Background(), dbURL)
+	if err != nil {
+		return fmt.Errorf("UNABLE TO CONNECT TO DATABASE: %v", err)
+	}
+	defer conn.Close(context.Background())
 
-// 	sqlQuery := `
-// 		INSERT INTO users (first_name, last_name, weight, height, fat_percentage, muscle_percentage)
-// 		VALUES ($1, $2, $3, $4, $5, $6)
-// 		RETURNING id
-// 	`
-// 	err = conn.QueryRow(context.Background(), sqlQuery, u.FirstName, u.LastName, u.Weight, u.Height, u.FatPercentage, u.MusclePercentage).Scan(&u.Id)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to insert user: %v", err)
-// 	}
+	sqlQuery := "UPDATE users SET"
+	params := []interface{}{}
+	paramId := 1
 
-// 	return nil
-// }
+	for key, value := range updates {
+		sqlQuery += fmt.Sprintf(" %s = $%d,", key, paramId) // making SQL query
+		params = append(params, value)
+		paramId++
+	}
+	sqlQuery = sqlQuery[:len(sqlQuery)-1] // Remove the trailing comma
+	sqlQuery += fmt.Sprintf(" WHERE id = $%d", paramId)
+	params = append(params, userId)
+
+	_, err = conn.Exec(context.Background(), sqlQuery, params...) // dynamic unpack
+	if err != nil {
+		return fmt.Errorf("failed to update user profile: %v", err)
+	}
+
+	return nil
+}

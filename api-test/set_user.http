@@ -1,0 +1,8 @@
+POST http://localhost:8080/updateUserProfile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTc0NTE1MzksImlkIjoxLCJsb2dpbiI6Im0wZ3JhbW1lciJ9.mf-PK-wUKijyWMIIK7ot3CgYhqCOOWdI7c4NCIHSKTU
+Content-Type: application/json
+
+{
+    "fat_percentage": 19.5,
+    "muscle_percentage": 73.6
+}

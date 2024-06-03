@@ -20,10 +20,10 @@ func getSecret() string {
 	return secretKey
 }
 
-func GenerateToken(login string, UseriId int) (string, error) {
+func GenerateToken(UseriId int, username string) (string, error) {
 	secretKey := getSecret()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"login": login,
+		"login": username,
 		"id":    UseriId,
 		"exp":   time.Now().Add(time.Hour * 3).Unix(),
 	})

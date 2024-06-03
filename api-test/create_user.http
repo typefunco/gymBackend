@@ -1,7 +1,7 @@
-POST http://localhost:8080/createuser
+POST http://localhost:8080/signup
 Content-Type: application/json
 
 {
-  "Username": "m0grammer",
+  "Username": "m0grammerSuka",
   "Password": "m0grik17"
 }
