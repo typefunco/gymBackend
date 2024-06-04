@@ -10,7 +10,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func getSecret() string {
+func jwtSecret() string {
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Println("Error loading .env file")
@@ -20,19 +20,20 @@ func getSecret() string {
 	return secretKey
 }
 
-func GenerateToken(UseriId int, username string) (string, error) {
-	secretKey := getSecret()
+func GenerateToken(UseriId int, username string, isSuperUser bool) (string, error) {
+	secretKey := jwtSecret()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"login": username,
-		"id":    UseriId,
-		"exp":   time.Now().Add(time.Hour * 3).Unix(),
+		"login":        username,
+		"id":           UseriId,
+		"is_superuser": isSuperUser,
+		"exp":          time.Now().Add(time.Hour * 3).Unix(),
 	})
 
 	return token.SignedString([]byte(secretKey))
 }
 
 func VerifyToken(token string) (int, error) {
-	secretKey := getSecret()
+	secretKey := jwtSecret()
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 

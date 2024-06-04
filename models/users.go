@@ -20,6 +20,8 @@ type User struct {
 	Height           float64
 	FatPercentage    float64
 	MusclePercentage float64
+	TrainerId        int
+	IsSuperUser      bool
 }
 
 func (u *User) Save() error {
