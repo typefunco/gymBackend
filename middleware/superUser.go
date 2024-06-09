@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"gymBackend/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -9,12 +10,12 @@ import (
 )
 
 func SuperUserMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		tokenString := c.GetHeader("Authorization")
+	return func(context *gin.Context) {
+		tokenString := context.GetHeader("Authorization")
 
 		if tokenString == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
-			c.Abort()
+			context.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
+			context.Abort()
 			return
 		}
 
@@ -22,31 +23,30 @@ func SuperUserMiddleware() gin.HandlerFunc {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
-			return jwtSecret, nil
+			return []byte(utils.JwtSecret()), nil
 		})
 
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-			c.Abort()
+			context.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			context.Abort()
 			return
 		}
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			isAdmin := claims["is_admin"]
-			if isAdmin == nil || !isAdmin.(bool) {
-				c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to access this resource"})
-				c.Abort()
+			isSuperUser := claims["is_superuser"]
+			if isSuperUser == nil || !isSuperUser.(bool) {
+				context.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to access this resource"})
+				context.Abort()
 				return
 			}
 
-			// Store isAdmin in context (if needed)
-			c.Set("isAdmin", isAdmin)
+			context.Set("isSuperUser", isSuperUser)
 		} else {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-			c.Abort()
+			context.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			context.Abort()
 			return
 		}
 
-		c.Next()
+		context.Next()
 	}
 }

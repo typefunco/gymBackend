@@ -21,6 +21,7 @@ type User struct {
 	FatPercentage    float64
 	MusclePercentage float64
 	TrainerId        int
+	GymId            int
 	IsSuperUser      bool
 }
 
@@ -80,6 +81,35 @@ func (u *User) ValidateCredentials() error {
 	isValidPassword := utils.CheckPasswordHash(u.Password, retrievePassword)
 	if !isValidPassword {
 		return errors.New("CREDENTIALS INVALID")
+	}
+
+	return nil
+}
+
+func (u *User) CheckSuperUserStatus() error {
+	dbURL, _ := utils.CheckDbConnection()
+
+	conn, err := pgx.Connect(context.Background(), dbURL)
+	if err != nil {
+		return fmt.Errorf("unable to connect to database: %v", err)
+	}
+	defer conn.Close(context.Background())
+
+	SQLquery := "SELECT is_superuser FROM users WHERE id = $1"
+	row := conn.QueryRow(context.Background(), SQLquery, u.Id)
+
+	var isSuperUser bool
+	err = row.Scan(&isSuperUser)
+	if err != nil {
+		return fmt.Errorf("error fetching user details: %v", err)
+	}
+
+	// If user is not a superuser, update the field to false
+	if !isSuperUser {
+		_, err := conn.Exec(context.Background(), "UPDATE users SET is_superuser = $1 WHERE id = $2", false, u.Id)
+		if err != nil {
+			return fmt.Errorf("error updating user details: %v", err)
+		}
 	}
 
 	return nil

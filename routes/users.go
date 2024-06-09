@@ -43,22 +43,37 @@ func Login(context *gin.Context) {
 	logger := log.New(os.Stderr)
 	var user models.User
 
-	err := context.ShouldBindJSON(&user)
+	var requestData struct {
+		Username    string `json:"Username" binding:"required"`
+		Password    string `json:"Password" binding:"required"`
+		IsSuperUser bool   `json:"IsSuperUser"`
+	}
 
+	err := context.ShouldBindJSON(&requestData)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"Message": "Can't parse data from request"})
 		return
 	}
 
-	err = user.ValidateCredentials()
+	// Now populate the user struct with the validated data
+	user.Username = requestData.Username
+	user.Password = requestData.Password
+	user.IsSuperUser = requestData.IsSuperUser
 
+	err = user.ValidateCredentials()
 	if err != nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"Message": err.Error()})
 		return
 	}
 
-	token, err := utils.GenerateToken(user.Id, user.Username, user.IsSuperUser)
+	err = user.CheckSuperUserStatus()
 
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"Message": "User is not Super user"})
+		return
+	}
+
+	token, err := utils.GenerateToken(user.Id, user.Username, user.IsSuperUser)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not authenticate user."})
 		return

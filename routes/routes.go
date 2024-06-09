@@ -1,11 +1,22 @@
 package routes
 
-import "github.com/gin-gonic/gin"
+import (
+	"gymBackend/middleware"
+
+	"github.com/gin-gonic/gin"
+)
 
 func RegisterRoutes(server *gin.Engine) {
 	server.GET("/get", Get)
 	server.POST("/signup", CreateUser)
 	server.POST("/login", Login)
-	server.GET("/showusers", ShowUsers)
 	server.POST("/updateUserProfile", UpdateUserProfile)
+
+	// Admin routes group protected by SuperUserMiddleware
+	adminGroup := server.Group("/users")
+	adminGroup.Use(middleware.SuperUserMiddleware())
+	{
+		adminGroup.GET("/showusers", ShowUsers)
+
+	}
 }

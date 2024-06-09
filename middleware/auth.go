@@ -1,24 +1,11 @@
 package middleware
 
 import (
-	"fmt"
 	"gymBackend/utils"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
-
-func jwtSecret() string {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Error loading .env file")
-	}
-
-	secretKey := os.Getenv("secretKey")
-	return secretKey
-}
 
 // AuthMiddleware checks if the user is authenticated
 func AuthMiddleware(context *gin.Context) {
