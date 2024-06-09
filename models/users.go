@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"gymBackend/utils"
 
+	"github.com/jackc/pgx/pgtype"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -124,7 +125,7 @@ func GetUsers() ([]User, error) {
 	}
 	defer conn.Close(context.Background())
 
-	SQLquery := "SELECT id, username, password FROM users"
+	SQLquery := "SELECT id, username, password, profile_created, first_name, last_name, weight, height, fat_percentage, muscle_percentage, trainer_id, gym_id, is_superuser FROM users"
 
 	rows, err := conn.Query(context.Background(), SQLquery)
 	if err != nil {
@@ -135,10 +136,51 @@ func GetUsers() ([]User, error) {
 	var users []User
 	for rows.Next() {
 		var user User
-		err := rows.Scan(&user.Id, &user.Username, &user.Password)
+		var profileCreated, isSuperUser pgtype.Bool
+		var firstName, lastName pgtype.Text
+		var weight, height, fatPercentage, musclePercentage pgtype.Float8
+		var trainerID, gymID pgtype.Int4
+		err := rows.Scan(&user.Id, &user.Username, &user.Password, &profileCreated, &firstName, &lastName, &weight, &height, &fatPercentage, &musclePercentage, &trainerID, &gymID, &isSuperUser)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning row: %v", err)
 		}
+
+		user.ProfileCreated = profileCreated.Bool
+		user.IsSuperUser = isSuperUser.Bool
+
+		if firstName.Status == pgtype.Present {
+			user.FirstName = firstName.String
+		}
+
+		if lastName.Status == pgtype.Present {
+			user.LastName = lastName.String
+		}
+
+		if weight.Status == pgtype.Present {
+			user.Weight = weight.Float
+		}
+
+		if height.Status == pgtype.Present {
+			user.Height = height.Float
+		}
+
+		if fatPercentage.Status == pgtype.Present {
+			user.FatPercentage = fatPercentage.Float
+		}
+
+		if musclePercentage.Status == pgtype.Present {
+			user.MusclePercentage = musclePercentage.Float
+		}
+
+		if trainerID.Status == pgtype.Present {
+			user.TrainerId = int(trainerID.Int)
+		}
+
+		if gymID.Status == pgtype.Present {
+			user.GymId = int(gymID.Int)
+		}
+
+		// Append user to slice
 		users = append(users, user)
 	}
 
@@ -147,7 +189,6 @@ func GetUsers() ([]User, error) {
 	}
 
 	return users, nil
-
 }
 
 func (u *User) UpdateProfile(userId int, updates map[string]interface{}) error {
