@@ -155,3 +155,79 @@ func (t *Trainer) UpdateProfile(trainerId int, updates map[string]interface{}) e
 
 	return nil
 }
+
+func GetTrainerById(id int) (Trainer, error) {
+	dbURL, err := utils.CheckDbConnection()
+	if err != nil {
+		return Trainer{}, fmt.Errorf("unable to check DB connection: %v", err)
+	}
+
+	conn, err := pgx.Connect(context.Background(), dbURL)
+	if err != nil {
+		return Trainer{}, fmt.Errorf("unable to connect to database: %v", err)
+	}
+	defer conn.Close(context.Background())
+
+	sqlQuery := `
+		SELECT id, first_name, last_name, weight, height, fat_percentage, muscle_percentage, 
+		       experience, education, schedule, gym_id 
+		FROM trainers WHERE id = $1
+	`
+
+	row := conn.QueryRow(context.Background(), sqlQuery, id)
+
+	var trainer Trainer
+	var firstName, lastName, education, schedule pgtype.Text
+	var weight, height, fatPercentage, musclePercentage pgtype.Float8
+	var experience, gymID pgtype.Int4
+
+	err = row.Scan(
+		&trainer.Id, &firstName, &lastName, &weight, &height, &fatPercentage, &musclePercentage,
+		&experience, &education, &schedule, &gymID,
+	)
+	if err != nil {
+		return Trainer{}, fmt.Errorf("unable to execute query: %v", err)
+	}
+
+	if firstName.Status == pgtype.Present {
+		trainer.FirstName = firstName.String
+	}
+
+	if lastName.Status == pgtype.Present {
+		trainer.LastName = lastName.String
+	}
+
+	if weight.Status == pgtype.Present {
+		trainer.Weight = weight.Float
+	}
+
+	if height.Status == pgtype.Present {
+		trainer.Height = height.Float
+	}
+
+	if fatPercentage.Status == pgtype.Present {
+		trainer.FatPercentage = fatPercentage.Float
+	}
+
+	if musclePercentage.Status == pgtype.Present {
+		trainer.MusclePercentage = musclePercentage.Float
+	}
+
+	if experience.Status == pgtype.Present {
+		trainer.Experience = int(experience.Int)
+	}
+
+	if education.Status == pgtype.Present {
+		trainer.Education = education.String
+	}
+
+	if schedule.Status == pgtype.Present {
+		trainer.Schedule = schedule.String
+	}
+
+	if gymID.Status == pgtype.Present {
+		trainer.GymId = int(gymID.Int)
+	}
+
+	return trainer, nil
+}
