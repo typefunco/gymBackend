@@ -9,14 +9,18 @@ import (
 func RegisterRoutes(server *gin.Engine) {
 	server.POST("/signup", CreateUser)
 	server.POST("/login", Login)
-	server.POST("/updateUserProfile", UpdateUserProfile)
+
+	authGroupUsers := server.Group("/users")
+	authGroupUsers.Use(middleware.AuthMiddleware())
+	{
+		authGroupUsers.PUT("/updateUserProfile", UpdateUserProfile)
+	}
 
 	// Admin routes group protected by SuperUserMiddleware
 	adminGroupUsers := server.Group("/users")
 	adminGroupUsers.Use(middleware.SuperUserMiddleware())
 	{
 		adminGroupUsers.GET("/showusers", ShowUsers)
-		adminGroupUsers.POST("/createtrainer", CreateTrainer)
 
 	}
 
@@ -25,7 +29,7 @@ func RegisterRoutes(server *gin.Engine) {
 	{
 		adminGroupTrainers.POST("/createtrainer", CreateTrainer)
 		adminGroupTrainers.GET("/showtrainers", ShowTrainers)
-		adminGroupTrainers.POST("/updateTrainerProfile", UpdateTrainerProfile)
+		adminGroupTrainers.PUT("/updateTrainerProfile", UpdateTrainerProfile)
 	}
 
 }

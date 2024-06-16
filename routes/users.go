@@ -83,10 +83,6 @@ func ShowUsers(context *gin.Context) {
 
 func UpdateUserProfile(context *gin.Context) {
 	token := context.GetHeader("Authorization")
-	if token == "" {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token required"})
-		return
-	}
 
 	userId, err := utils.VerifyToken(token)
 	if err != nil {

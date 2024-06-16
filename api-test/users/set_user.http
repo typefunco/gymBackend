@@ -1,8 +1,8 @@
-POST http://localhost:8080/updateUserProfile
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTg1ODIyMjksImlkIjoxLCJpc19zdXBlcnVzZXIiOnRydWUsImxvZ2luIjoibTBncmFtbWVyU3VrYSJ9.LqOGxhKJeGZsB2sAphd_FW74yaBYcXd-2M8xqhQoLLc
+PUT http://localhost:8080/users/updateUserProfile
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTg1ODUyMTEsImlkIjo4LCJpc19zdXBlcnVzZXIiOnRydWUsImxvZ2luIjoieGExemVyIn0.rVgMTcTBjeoOs-crGrCYUnjjj7H7SU_pvEaGoWAYj-4
 Content-Type: application/json
 
 {
-    "fat_percentage": 19.5,
-    "muscle_percentage": 79.6
+    "fat_percentage": 14.5,
+    "muscle_percentage": 59.6
 }
