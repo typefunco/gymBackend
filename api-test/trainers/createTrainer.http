@@ -1,0 +1,16 @@
+POST http://localhost:8080/trainers/createtrainer
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTg1NTc0MzgsImlkIjoxLCJpc19zdXBlcnVzZXIiOnRydWUsImxvZ2luIjoibTBncmFtbWVyU3VrYSJ9.4GKvitmZK0UIZlz45Y4AmxnMwDHkBDgiVFSQZJZOT2s
+
+{
+    "FirstName": "Hugo",
+    "LastName": "Alvares",
+    "Weight": 87.5,
+    "Height": 1.94,
+    "FatPercentage": 9.3,
+    "MusclePercentage": 81.0,
+    "Experience": 3,
+    "Education": "Madrid Gym University",
+    "Schedule": "Mon-Fri 9am-5pm",
+    "GymId": 2
+}

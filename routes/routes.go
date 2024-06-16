@@ -12,10 +12,19 @@ func RegisterRoutes(server *gin.Engine) {
 	server.POST("/updateUserProfile", UpdateUserProfile)
 
 	// Admin routes group protected by SuperUserMiddleware
-	adminGroup := server.Group("/users")
-	adminGroup.Use(middleware.SuperUserMiddleware())
+	adminGroupUsers := server.Group("/users")
+	adminGroupUsers.Use(middleware.SuperUserMiddleware())
 	{
-		adminGroup.GET("/showusers", ShowUsers)
+		adminGroupUsers.GET("/showusers", ShowUsers)
+		adminGroupUsers.POST("/createtrainer", CreateTrainer)
 
 	}
+
+	adminGroupTrainers := server.Group("/trainers")
+	adminGroupTrainers.Use(middleware.SuperUserMiddleware())
+	{
+		adminGroupTrainers.POST("/createtrainer", CreateTrainer)
+
+	}
+
 }
