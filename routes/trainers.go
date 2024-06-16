@@ -30,3 +30,12 @@ func CreateTrainer(context *gin.Context) {
 	context.JSON(http.StatusCreated, gin.H{"Response": "Trainer saved"})
 	logger.Infof("Trainer created\nName: %s\nLast name: %s", trainer.FirstName, trainer.LastName)
 }
+
+func ShowTrainers(context *gin.Context) {
+	trainers, err := models.GetTrainers()
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"Response": err})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"Response": trainers})
+}

@@ -24,6 +24,7 @@ func RegisterRoutes(server *gin.Engine) {
 	adminGroupTrainers.Use(middleware.SuperUserMiddleware())
 	{
 		adminGroupTrainers.POST("/createtrainer", CreateTrainer)
+		adminGroupTrainers.GET("/showtrainers", ShowTrainers)
 
 	}
 

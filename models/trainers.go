@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gymBackend/utils"
 
+	"github.com/jackc/pgx/pgtype"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -43,4 +44,83 @@ func (t *Trainer) Save() error {
 	}
 
 	return nil
+}
+
+func GetTrainers() ([]Trainer, error) {
+	dbURL, _ := utils.CheckDbConnection()
+
+	conn, err := pgx.Connect(context.Background(), dbURL)
+	if err != nil {
+		return nil, fmt.Errorf("unable to connect to database: %v", err)
+	}
+	defer conn.Close(context.Background())
+
+	SQLquery := "SELECT id, first_name, last_name, weight, height, fat_percentage, muscle_percentage, experience, education, schedule, gym_id FROM trainers"
+
+	rows, err := conn.Query(context.Background(), SQLquery)
+	if err != nil {
+		return nil, fmt.Errorf("unable to execute query: %v", err)
+	}
+	defer rows.Close()
+
+	var trainers []Trainer
+	for rows.Next() {
+		var trainer Trainer
+		var firstName, lastName, education, schedule pgtype.Varchar
+		var weight, height, fatPercentage, musclePercentage pgtype.Float8
+		var experience, gymID pgtype.Int4
+
+		err := rows.Scan(&trainer.Id, &firstName, &lastName, &weight, &height, &fatPercentage, &musclePercentage, &experience, &education, &schedule, &gymID) // &trainer.Id because in DB it's int and here it's int
+		if err != nil {
+			return nil, fmt.Errorf("error scanning row: %v", err)
+		}
+
+		if firstName.Status == pgtype.Present {
+			trainer.FirstName = firstName.String
+		}
+
+		if lastName.Status == pgtype.Present {
+			trainer.LastName = lastName.String
+		}
+
+		if weight.Status == pgtype.Present {
+			trainer.Weight = weight.Float
+		}
+
+		if height.Status == pgtype.Present {
+			trainer.Height = height.Float
+		}
+
+		if fatPercentage.Status == pgtype.Present {
+			trainer.FatPercentage = fatPercentage.Float
+		}
+
+		if musclePercentage.Status == pgtype.Present {
+			trainer.MusclePercentage = musclePercentage.Float
+		}
+
+		if experience.Status == pgtype.Present {
+			trainer.Experience = int(experience.Int)
+		}
+
+		if education.Status == pgtype.Present {
+			trainer.Education = education.String
+		}
+
+		if schedule.Status == pgtype.Present {
+			trainer.Schedule = schedule.String
+		}
+
+		if gymID.Status == pgtype.Present {
+			trainer.GymId = int(gymID.Int)
+		}
+
+		trainers = append(trainers, trainer)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over rows: %v", err)
+	}
+
+	return trainers, nil
 }

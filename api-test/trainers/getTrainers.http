@@ -1,0 +1,2 @@
+GET http://localhost:8080/trainers/showtrainers
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTg1ODExOTIsImlkIjo5LCJpc19zdXBlcnVzZXIiOmZhbHNlLCJsb2dpbiI6InN1bmd1bmVpbGxvIn0.ZdDYDAjUTsZZZwd3qcd782XeAirQdNOjgLg4zEMSFXg
