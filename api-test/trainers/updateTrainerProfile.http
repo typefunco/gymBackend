@@ -1,8 +1,9 @@
-POST http://localhost:8080/updateUserProfile
+POST http://localhost:8080/trainers/updateTrainerProfile
 Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTg1ODIyMjksImlkIjoxLCJpc19zdXBlcnVzZXIiOnRydWUsImxvZ2luIjoibTBncmFtbWVyU3VrYSJ9.LqOGxhKJeGZsB2sAphd_FW74yaBYcXd-2M8xqhQoLLc
 Content-Type: application/json
 
 {
+    "Id": 1,
     "fat_percentage": 19.5,
     "muscle_percentage": 79.6
 }

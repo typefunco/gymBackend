@@ -39,3 +39,20 @@ func ShowTrainers(context *gin.Context) {
 	}
 	context.JSON(http.StatusOK, gin.H{"Response": trainers})
 }
+
+func UpdateTrainerProfile(context *gin.Context) {
+
+	var updates map[string]interface{}
+	if err := context.BindJSON(&updates); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	trainer := &models.Trainer{}
+	if err := trainer.UpdateProfile(trainer.Id, updates); err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "Trainer profile updated successfully"})
+}

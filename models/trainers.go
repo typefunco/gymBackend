@@ -10,7 +10,7 @@ import (
 )
 
 type Trainer struct {
-	Id               int
+	Id               int `json:"Id"`
 	FirstName        string
 	LastName         string
 	Weight           float64
@@ -64,7 +64,7 @@ func GetTrainers() ([]Trainer, error) {
 	defer rows.Close()
 
 	var trainers []Trainer
-	for rows.Next() {
+	for rows.Next() { // Going on the data. Id=1, Id=2, Id=3. Checking this data. If we have next element, we move, else stop
 		var trainer Trainer
 		var firstName, lastName, education, schedule pgtype.Varchar
 		var weight, height, fatPercentage, musclePercentage pgtype.Float8
@@ -75,52 +75,83 @@ func GetTrainers() ([]Trainer, error) {
 			return nil, fmt.Errorf("error scanning row: %v", err)
 		}
 
-		if firstName.Status == pgtype.Present {
+		if firstName.Status == pgtype.Present { // string
 			trainer.FirstName = firstName.String
 		}
 
-		if lastName.Status == pgtype.Present {
+		if lastName.Status == pgtype.Present { // string
 			trainer.LastName = lastName.String
 		}
 
-		if weight.Status == pgtype.Present {
+		if weight.Status == pgtype.Present { // Float64
 			trainer.Weight = weight.Float
 		}
 
-		if height.Status == pgtype.Present {
+		if height.Status == pgtype.Present { // Float64
 			trainer.Height = height.Float
 		}
 
-		if fatPercentage.Status == pgtype.Present {
+		if fatPercentage.Status == pgtype.Present { // Float64
 			trainer.FatPercentage = fatPercentage.Float
 		}
 
-		if musclePercentage.Status == pgtype.Present {
+		if musclePercentage.Status == pgtype.Present { // Float64
 			trainer.MusclePercentage = musclePercentage.Float
 		}
 
-		if experience.Status == pgtype.Present {
+		if experience.Status == pgtype.Present { // Int
 			trainer.Experience = int(experience.Int)
 		}
 
-		if education.Status == pgtype.Present {
+		if education.Status == pgtype.Present { // string
 			trainer.Education = education.String
 		}
 
-		if schedule.Status == pgtype.Present {
+		if schedule.Status == pgtype.Present { // string
 			trainer.Schedule = schedule.String
 		}
 
-		if gymID.Status == pgtype.Present {
+		if gymID.Status == pgtype.Present { // int
 			trainer.GymId = int(gymID.Int)
 		}
 
 		trainers = append(trainers, trainer)
 	}
 
-	if err := rows.Err(); err != nil {
+	err = rows.Err()
+	if err != nil {
 		return nil, fmt.Errorf("error iterating over rows: %v", err)
 	}
 
 	return trainers, nil
+}
+
+func (t *Trainer) UpdateProfile(trainerId int, updates map[string]interface{}) error {
+	dbURL, _ := utils.CheckDbConnection()
+
+	conn, err := pgx.Connect(context.Background(), dbURL)
+	if err != nil {
+		return fmt.Errorf("UNABLE TO CONNECT TO DATABASE: %v", err)
+	}
+	defer conn.Close(context.Background())
+
+	sqlQuery := "UPDATE trainers SET"
+	params := []interface{}{}
+	paramId := 1
+
+	for key, value := range updates {
+		sqlQuery += fmt.Sprintf(" %s = $%d,", key, paramId)
+		params = append(params, value)
+		paramId++
+	}
+	sqlQuery = sqlQuery[:len(sqlQuery)-1]               // Remove the trailing comma
+	sqlQuery += fmt.Sprintf(" WHERE id = $%d", paramId) // Use $1 for trainerId
+	params = append(params, trainerId)
+
+	_, err = conn.Exec(context.Background(), sqlQuery, params...)
+	if err != nil {
+		return fmt.Errorf("failed to update trainer profile: %v", err)
+	}
+
+	return nil
 }

@@ -5,7 +5,6 @@ import (
 	"gymBackend/utils"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/withmandala/go-log"
 
@@ -89,9 +88,6 @@ func UpdateUserProfile(context *gin.Context) {
 		return
 	}
 
-	// Extract token from "Bearer " prefix
-	token = strings.TrimPrefix(token, "Bearer ")
-
 	userId, err := utils.VerifyToken(token)
 	if err != nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
@@ -110,5 +106,5 @@ func UpdateUserProfile(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": "Profile updated successfully"})
+	context.JSON(http.StatusOK, gin.H{"message": "User profile updated successfully"})
 }

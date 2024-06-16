@@ -25,7 +25,7 @@ func RegisterRoutes(server *gin.Engine) {
 	{
 		adminGroupTrainers.POST("/createtrainer", CreateTrainer)
 		adminGroupTrainers.GET("/showtrainers", ShowTrainers)
-
+		adminGroupTrainers.POST("/updateTrainerProfile", UpdateTrainerProfile)
 	}
 
 }
