@@ -5,6 +5,7 @@ import (
 	"gymBackend/utils"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/withmandala/go-log"
 
@@ -103,4 +104,22 @@ func UpdateUserProfile(context *gin.Context) {
 	}
 
 	context.JSON(http.StatusOK, gin.H{"message": "User profile updated successfully"})
+}
+
+func getUser(context *gin.Context) {
+	userId, err := strconv.ParseInt(context.Param("id"), 10, 32)
+
+	if err != nil {
+		context.JSON(http.StatusBadGateway, gin.H{"message": "Bad URL"})
+		return
+	}
+
+	user, err := models.GetUserById(int(userId))
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Couldn't get data"})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"message": user})
+
 }

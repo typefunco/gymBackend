@@ -14,6 +14,7 @@ func RegisterRoutes(server *gin.Engine) {
 	authGroupUsers.Use(middleware.AuthMiddleware())
 	{
 		authGroupUsers.PUT("/updateUserProfile", UpdateUserProfile)
+		authGroupUsers.GET("/:id", getUser)
 	}
 
 	// Admin routes group protected by SuperUserMiddleware

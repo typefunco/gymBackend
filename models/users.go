@@ -220,3 +220,75 @@ func (u *User) UpdateProfile(userId int, updates map[string]interface{}) error {
 
 	return nil
 }
+
+func GetUserById(id int) (User, error) {
+	dbURL, err := utils.CheckDbConnection()
+	if err != nil {
+		return User{}, fmt.Errorf("unable to check DB connection: %v", err)
+	}
+
+	conn, err := pgx.Connect(context.Background(), dbURL)
+	if err != nil {
+		return User{}, fmt.Errorf("unable to connect to database: %v", err)
+	}
+	defer conn.Close(context.Background())
+
+	sqlQuery := `
+		SELECT id, username, password, profile_created, first_name, last_name, 
+		       weight, height, fat_percentage, muscle_percentage, trainer_id, gym_id, is_superuser 
+		FROM users WHERE id = $1
+	`
+
+	row := conn.QueryRow(context.Background(), sqlQuery, id)
+
+	var user User
+	var profileCreated, isSuperUser pgtype.Bool
+	var firstName, lastName pgtype.Text
+	var weight, height, fatPercentage, musclePercentage pgtype.Float8
+	var trainerID, gymID pgtype.Int4
+
+	err = row.Scan(
+		&user.Id, &user.Username, &user.Password, &profileCreated, &firstName, &lastName,
+		&weight, &height, &fatPercentage, &musclePercentage, &trainerID, &gymID, &isSuperUser,
+	)
+	if err != nil {
+		return User{}, fmt.Errorf("unable to execute query: %v", err)
+	}
+
+	user.ProfileCreated = profileCreated.Bool
+	user.IsSuperUser = isSuperUser.Bool
+
+	if firstName.Status == pgtype.Present {
+		user.FirstName = firstName.String
+	}
+
+	if lastName.Status == pgtype.Present {
+		user.LastName = lastName.String
+	}
+
+	if weight.Status == pgtype.Present {
+		user.Weight = weight.Float
+	}
+
+	if height.Status == pgtype.Present {
+		user.Height = height.Float
+	}
+
+	if fatPercentage.Status == pgtype.Present {
+		user.FatPercentage = fatPercentage.Float
+	}
+
+	if musclePercentage.Status == pgtype.Present {
+		user.MusclePercentage = musclePercentage.Float
+	}
+
+	if trainerID.Status == pgtype.Present {
+		user.TrainerId = int(trainerID.Int)
+	}
+
+	if gymID.Status == pgtype.Present {
+		user.GymId = int(gymID.Int)
+	}
+
+	return user, nil
+}
