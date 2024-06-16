@@ -12,14 +12,14 @@ func AuthMiddleware(context *gin.Context) {
 	tokenString := context.GetHeader("Authorization")
 
 	if tokenString == "" {
-		context.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"response": "Authorization header is required"})
+		context.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "Authorization header is required"})
 		return
 	}
 
 	userId, err := utils.VerifyToken(tokenString)
 
 	if err != nil {
-		context.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"response": "Wrong authorization header"})
+		context.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Message": "Wrong authorization header"})
 		return
 	}
 

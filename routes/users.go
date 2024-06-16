@@ -12,13 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Get(context *gin.Context) {
-	context.JSON(http.StatusOK, gin.H{"Message": "All done"})
-}
-
 func CreateUser(context *gin.Context) {
 	logger := log.New(os.Stderr)
-
 	var user models.User
 	err := context.ShouldBindJSON(&user)
 
@@ -44,9 +39,8 @@ func Login(context *gin.Context) {
 	var user models.User
 
 	var requestData struct {
-		Username    string `json:"Username" binding:"required"`
-		Password    string `json:"Password" binding:"required"`
-		IsSuperUser bool   `json:"IsSuperUser"`
+		Username string `json:"Username" binding:"required"`
+		Password string `json:"Password" binding:"required"`
 	}
 
 	err := context.ShouldBindJSON(&requestData)
@@ -58,7 +52,7 @@ func Login(context *gin.Context) {
 	// Now populate the user struct with the validated data
 	user.Username = requestData.Username
 	user.Password = requestData.Password
-	user.IsSuperUser = requestData.IsSuperUser
+	user.IsSuperUser = false
 
 	err = user.ValidateCredentials()
 	if err != nil {
@@ -66,12 +60,8 @@ func Login(context *gin.Context) {
 		return
 	}
 
-	err = user.CheckSuperUserStatus()
-
-	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"Message": "User is not Super user"})
-		return
-	}
+	superUser, _ := user.CheckSuperUserStatus()
+	user.IsSuperUser = superUser
 
 	token, err := utils.GenerateToken(user.Id, user.Username, user.IsSuperUser)
 	if err != nil {
