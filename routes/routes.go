@@ -2,6 +2,8 @@ package routes
 
 import (
 	"gymBackend/middleware"
+	"gymBackend/models"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,5 +35,24 @@ func RegisterRoutes(server *gin.Engine) {
 		adminGroupTrainers.GET("/:id", getTrainer)
 		adminGroupTrainers.PUT("/updateTrainerProfile", UpdateTrainerProfile)
 	}
+
+	// Routes
+
+	authGroupSessions := server.Group("/session")
+	authGroupSessions.Use(middleware.AuthMiddleware())
+	{
+		authGroupSessions.POST("/sessions", CreateSession)
+		authGroupSessions.POST("/check_in", CheckInSession)
+	}
+
+	// Start cleanup job for missed sessions
+	go func() {
+		for {
+			if err := models.MarkMissedSessions(); err != nil {
+				// Handle error as needed
+			}
+			time.Sleep(5 * time.Minute) // Run every 5 minutes
+		}
+	}()
 
 }

@@ -1,0 +1,28 @@
+POST http://localhost:8080/session/sessions
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTkxODc1MTgsImlkIjo4LCJpc19zdXBlcnVzZXIiOnRydWUsImxvZ2luIjoieGExemVyIn0.XPf0ezOsDUtWRpN-Wh-W4s5OpZqaM7leureev9XY__U
+
+{
+  "trainer_id": 1,
+  "start_time": "2024-06-30T12:00:00Z",
+  "end_time": "2024-06-30T13:00:00Z",
+  "scheduled_time": "2024-06-30T11:30:00Z",
+  "workout_details": {
+    "exercises": [
+      {
+        "name": "Chest Press",
+        "muscle_group": "Chest",
+        "duration_minutes": 15,
+        "sets": 3,
+        "reps_per_set": 10
+      },
+      {
+        "name": "Triceps Extension",
+        "muscle_group": "Triceps",
+        "duration_minutes": 20,
+        "sets": 3,
+        "reps_per_set": 12
+      }
+    ]
+  }
+}
